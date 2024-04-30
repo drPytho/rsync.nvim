@@ -15,7 +15,7 @@ local config = {
     fugitive_sync = false,
     sync_on_save = true,
     reload_file_after_sync = true,
-    project_config_path = ".nvim/rsync.toml",
+    project_config_path = '.rsync.toml',
     on_exit = nil,
     on_stderr = nil,
 }

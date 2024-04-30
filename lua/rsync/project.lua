@@ -1,7 +1,7 @@
-local rsync_nvim = require("rsync_nvim")
-local path = require("plenary.path")
-local log = require("rsync.log")
-local config = require("rsync.config")
+local toml = require('rsync.util.toml')
+local path = require('plenary.path')
+local log = require('rsync.log')
+local config = require('rsync.config')
 
 ---@class RsyncProjectStatus
 ---@field code integer last exit code
@@ -23,12 +23,12 @@ local config_path = config.get_current_config().project_config_path
 ---Try find a config file.
 ---@return string?, string? # absolute path, or config not found error
 local function get_config_file()
-    local config_file_path = vim.fn.findfile(config_path, ".;")
+    local config_file_path = vim.fn.findfile(config_path, '.;')
     if vim.fn.len(config_file_path) > 0 then
         config_file_path = path:new(config_file_path):absolute()
         return config_file_path
     end
-    return nil, "config file not found"
+    return nil, 'config file not found'
 end
 
 ---Get project path from config file path.
@@ -43,11 +43,11 @@ end
 ---@param config_file_path string the path to the config file
 ---@return table? # config table or could not decode rsync.toml error
 local function get_config(config_file_path)
-    local succeeded, table = pcall(rsync_nvim.decode_toml, config_file_path)
+    local succeeded, table = pcall(toml.parse_file, config_file_path, {})
     if succeeded then
         return table
     else
-        error("Could not decode rsync.toml")
+        error('Could not decode rsync.toml')
         log.error(string.format("get_config, could not decode '%s'", config_file_path))
     end
 end
@@ -85,7 +85,7 @@ function project.get_config_table()
         }
 
         -- use the default value if ignorefile_paths is not specified in project config
-        project_table.ignorefile_paths = project_table.ignorefile_paths or { ".gitignore" }
+        project_table.ignorefile_paths = project_table.ignorefile_paths or { '.gitignore' }
         _RsyncProjectConfigs[project_path] = project_table
         return project_table
     end
@@ -95,7 +95,7 @@ end
 function project.reload_config()
     local config_file_path = get_config_file()
     if config_file_path == nil then
-        vim.api.nvim_err_writeln("Could not find rsync.toml")
+        vim.api.nvim_err_writeln('Could not find rsync.toml')
         return
     end
     local project_path = get_project_path(config_file_path)
@@ -111,7 +111,7 @@ function project:run(fn, report_error)
     local config_table = project.get_config_table()
     if config_table == nil then
         if report_error == nil or report_error then
-            vim.api.nvim_err_writeln("Could not find rsync.toml")
+            vim.api.nvim_err_writeln('Could not find .rsync.toml')
         end
         return
     end

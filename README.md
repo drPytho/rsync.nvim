@@ -1,14 +1,9 @@
-[![codecov](https://codecov.io/gh/OscarCreator/rsync.nvim/branch/master/graph/badge.svg?token=GYELY6KJZ6)](https://codecov.io/gh/OscarCreator/rsync.nvim)
-
 # rsync.nvim
 
 Asynchronously transfer your files with `rsync` on save.
 
-![output](https://github.com/OscarCreator/rsync.nvim/assets/53407525/c5c402bd-98ac-4899-9ce0-ebf27db28d29)
-
 ## Dependencies
 
-- [cargo](https://www.rust-lang.org/tools/install)
 - rsync
 
 ## Installation
@@ -16,27 +11,25 @@ Asynchronously transfer your files with `rsync` on save.
 ```lua
 -- packer.nvim
 use {
-    'OscarCreator/rsync.nvim',
-    run = 'make',
+    'drPytho/rsync.nvim',
     requires = {'nvim-lua/plenary.nvim'},
     config = function()
-        require("rsync").setup()
+        require("rsync").setup({})
     end
 }
 -- lazy.nvim
 {
-    'OscarCreator/rsync.nvim',
-    build = 'make',
+    'drPytho/rsync.nvim',
     dependencies = 'nvim-lua/plenary.nvim',
     config = function()
-        require("rsync").setup()
+        require("rsync").setup({})
     end,
 }
 ```
 
 ## Usage
 
-**rsync.nvim** looks for `.nvim/rsync.toml` file by default in the root of your
+**rsync.nvim** looks for `.rsync.toml` file by default in the root of your
 project. The path can also be set with the `project_config_path` key in the
 plugin configuration.
 
@@ -44,14 +37,11 @@ The current options available:
 
 ```toml
 # this is the path to the remote. Can be either a local/remote filepath.
-remote_path = "../copy/"
-# or if using ssh
-remote_path = "user@host:/home/user/path/"
+remote_path = "user@host:/home/user/path/" # Or a local path like `../copy`
 
 # specifying a file(s) which should be synced "down" but are on ignore files.
 # this is a workaround to sync down files which are included on ignore files.
-remote_includes = "build.log"
-# or using an array if multiple files are needed.
+# **WARNING** ALL OTHER FILES IN THE REMOTE WILL BE DELETED!!
 remote_includes = ["build.log", "build/generated.json"]
 
 # specifying an gitignore file(s). Files matching patterns in ignore files are

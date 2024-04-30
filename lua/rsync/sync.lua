@@ -7,6 +7,7 @@ local project = require("rsync.project")
 local log = require("rsync.log")
 local config = require("rsync.config")
 local path = require("plenary.path")
+local Job = require("plenary.job")
 
 ---@enum FileSyncStates
 FileSyncStates = {
@@ -100,7 +101,10 @@ local function compose_sync_up_command(project_path, destination_path, ignorefil
     -- read ignore files append lines without ! with --include
     local include, exclude = create_filters(ignorefile_paths)
 
-    return "rsync -varz --delete" .. include .. exclude .. "-f'- .nvim' " .. project_path .. " " .. destination_path
+    
+    local command = "rsync -varz --delete" .. include .. exclude .. "-f'- .nvim' " .. project_path .. " " .. destination_path
+    log.debug()
+    return command
 end
 
 --- Sync project to remote
@@ -111,7 +115,8 @@ function sync.sync_up(report_error)
         if current_status.state == ProjectSyncStates.SYNC_DOWN then
             vim.api.nvim_err_writeln("Could not sync up, due to sync down still running")
             return
-        elseif current_status.state == ProjectSyncStates.SYNC_UP then
+        end
+        if current_status.state == ProjectSyncStates.SYNC_UP then
             _RsyncProjectConfigs[config_table.project_path].status.project.state = ProjectSyncStates.STOPPED
 
             vim.fn.jobstop(current_status.job_id)
